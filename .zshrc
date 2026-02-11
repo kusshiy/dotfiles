@@ -1,53 +1,47 @@
-# --- 1. プロンプト設定 (Macのデザインを再現) ---
-# %m (ホスト名) はコンテナIDになるので便利です
-# %w %T (日付と時刻) も引き継ぎました
-PROMPT='%F{2}devcontainer@%m%f%F{15}:%f%F{21}%~%f %F{8}%w %T%f
-$ '
+# --- 0. Oh My Zsh 初期化 ---
+export ZSH="$HOME/.oh-my-zsh"
 
-# コマンド実行ごとの改行設定 (add_line関数)
-function add_line {
-  if [[ -z "${PS1_NEWLINE_LOGIN}" ]]; then
-    PS1_NEWLINE_LOGIN=true
-  else
-    printf '\n'
-  fi
-}
-precmd_functions+=(add_line)
+# テーマ設定 (robbyrussell はフォント設定不要で Git 状態が見える名作です)
+ZSH_THEME="robbyrussell"
 
-# --- 2. エイリアス (これは共通で便利なので引き継ぐ) ---
+# プラグインの有効化
+# ※ zsh-syntax-highlighting は「最後に読み込む」のが zsh の鉄則なので最後に配置
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+
+# Oh My Zsh の読み込み (ここで compinit も内部で実行されます)
+source $ZSH/oh-my-zsh.sh
+
+# --- 1. エイリアス ---
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
-# --- 3. 環境に応じた設定の分岐 ---
-# ここが重要です。「MacならHomebrew」「Linuxなら何もしない」などを分けます
+# --- 2. 環境に応じた設定の分岐 ---
 case "$(uname)" in
   "Darwin") 
-    # Mac (Homebrew, Pyenv, CondaなどはMacでのみ有効にする)
+    # Mac 固有の設定
     [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
     if command -v pyenv 1>/dev/null 2>&1; then eval "$(pyenv init -)"; fi
-    
-    # Conda設定などは必要ならここに書く（コンテナ内では不要なことが多いので省略推奨）
     ;;
   "Linux")
-    # Linux (Dev Container内)
-    # ここにDev Container特有の設定があれば書く
+    # Dev Container (Linux) 固有の設定
+    # コンテナ内だと一目でわかるように、プロンプトに少し手を加えるなどの遊びも可能
     ;;
 esac
 
-# --- 4. 共通の便利な設定 ---
-# nvmの設定 (Dev Containerによく入ってるのでチェックして読み込む)
+# --- 3. 共通の便利な設定 ---
+# nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-# Ollamaの設定 (引き継ぎ)
+# Ollama
 export OLLAMA_HOST=0.0.0.0:11434
 
-# パスの追加
+# パス追加 (自作スクリプト用)
 export PATH="$HOME/.local/bin:$PATH"
 
-# --- 5. 補完機能の有効化 ---
-autoload -Uz compinit
-compinit
+# --- 4. 注意点 ---
+# ※ 手動の 'compinit' は不要です。Oh My Zsh が内部で最適なタイミングで実行してくれます。
+# 自分で書くと起動がコンマ数秒遅くなる原因になります。
