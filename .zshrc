@@ -1,8 +1,9 @@
 # --- 0. Oh My Zsh 初期化 ---
 export ZSH="$HOME/.oh-my-zsh"
+export TZ='Asia/Tokyo'
 
 # テーマ設定 (robbyrussell はフォント設定不要で Git 状態が見える名作です)
-ZSH_THEME="robbyrussell"
+ZSH_THEME="ys"
 
 # プラグインの有効化
 # ※ zsh-syntax-highlighting は「最後に読み込む」のが zsh の鉄則なので最後に配置
