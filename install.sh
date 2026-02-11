@@ -10,16 +10,22 @@ if [ ! -d "$DOTFILES_DIR" ]; then
     exit 1
 fi
 
-# --- 1. Zshのインストール (OS自動判定) ---
-if [ -f /sbin/apk ]; then
-    # Alpine Linux
-    echo "Detected Alpine Linux. Installing Zsh & tools..."
-    sudo apk update && sudo apk add zsh git curl zsh-vcs zsh-syntax-highlighting zsh-autosuggestions
-elif [ -f /usr/bin/apt-get ]; then
-    # Debian / Ubuntu
-    echo "Detected Debian/Ubuntu. Installing Zsh..."
-    sudo apt-get update && sudo apt-get install -y zsh git curl
+# --- 1. Zshのインストール (OS自動判定) --- 
+# (既存の処理) ...
+
+# --- 1.5 Oh My Zsh & Plugins の導入 (ここを追加) ---
+echo "Installing Oh My Zsh and plugins..."
+# Oh My Zsh本体
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
+
+# プラグインのダウンロード (ディレクトリがなければclone)
+ZSH_CUSTOM=${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}
+[ ! -d "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" ] && \
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions
+[ ! -d "${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting" ] && \
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting
 
 # --- 2. 設定ファイルのシンボリックリンク作成 ---
 echo "Linking configuration files..."
